@@ -1,0 +1,58 @@
+# Step 1: Install and Load Required Libraries
+install.packages("recommenderlab")
+install.packages("ggplot2")
+library(recommenderlab)
+library(ggplot2)
+
+# Step 2: Load and Explore the Dataset
+data("MovieLense")
+ml_data <- MovieLense
+
+# View dataset structure and sparsity
+print(ml_data)
+summary(ml_data)
+cat("Sparsity of the data:", sum(is.na(as(ml_data, "matrix"))) / prod(dim(ml_data)), "\n")
+
+# Visualize rating distribution
+hist(getRatings(ml_data), 
+     main = "Rating Distribution", 
+     col = "blue", 
+     xlab = "Ratings", 
+     ylab = "Frequency")
+
+# Step 3: Split Dataset into Training and Testing Sets
+set.seed(123)
+split <- sample(x = c(TRUE, FALSE), size = nrow(ml_data), replace = TRUE, prob = c(0.8, 0.2))
+train_data <- ml_data[split, ]
+test_data <- ml_data[!split, ]
+
+# Step 4: Build a Recommendation Model using Matrix Factorization (SVD)
+recommender <- Recommender(train_data, method = "SVD")
+
+# Step 5: Predict Recommendations
+# Generate top 5 recommendations for the test set
+predictions <- predict(recommender, newdata = test_data, n = 5)
+
+# View predictions as a list
+cat("Predicted Recommendations:\n")
+print(as(predictions, "list"))
+
+# Step 6: Evaluate the Model
+# Define evaluation scheme (80% train, 20% test)
+evaluation_scheme <- evaluationScheme(ml_data, method = "split", train = 0.8, given = 10, goodRating = 4)
+
+# Evaluate using Matrix Factorization (SVD)
+results <- evaluate(evaluation_scheme, method = "SVD", type = "topNList", n = c(1, 3, 5))
+
+# Plot ROC curve
+plot(results, annotate = TRUE, main = "ROC Curve for SVD")
+
+# Step 7: Visualize Top-N Recommendations (Optional)
+# Top 5 recommendations visualization
+top_recommendations <- as(predictions, "list")
+recommendation_df <- data.frame(
+  User = rep(names(top_recommendations), lengths(top_recommendations)),
+  Movie = unlist(top_recommendations)
+)
+print("Top Recommendations Data Frame:")
+print(recommendation_df)
