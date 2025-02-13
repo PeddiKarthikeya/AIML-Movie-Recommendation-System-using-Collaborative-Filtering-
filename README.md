@@ -21,10 +21,6 @@ Use SVD (Singular Value Decomposition) to fill in missing ratings and improve re
 Evaluate the model using metrics like ROC Curve and Top-N Recommendations.
 
 ->Installation Instructions
-*To run the recommendation system, you need R and the necessary libraries installed.
-Clone the Repository First, clone this repository to your local machine:
-git clone https://github.com/your-username/MovieRecommendationSystem.git
-cd MovieRecommendationSystem
 *Install Required Libraries You need to install the following R libraries:
 install.packages("recommenderlab")
 install.packages("ggplot2")
